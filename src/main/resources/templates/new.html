@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new user</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="text-light">
+        <span th:text="${loggedInUser.name}"></span>
+        <span th:text="${loggedInUser.lastName}"></span>
+    </div>
+    <form class="form-inline" th:action="@{/logout}" th:method="POST">
+        <button class="btn btn-outline-dark my-2 my-sm-0 text-light" type="submit">Logout</button>
+    </form>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 bg-white text-primary d-flex flex-column vh-100 ">
+            <form action="/admin/adminPage" method="GET">
+                <button type="submit" class="btn btn-white btn-lg btn-block active">Admin</button>
+            </form>
+            <form action="/student" method="GET">
+                <button type="submit" class="btn btn-white btn-lg btn-block active">Student</button>
+            </form>
+        </div>
+
+        <div class="col-lg-9 bg-light text-dark d-flex flex-column vh-100">
+            <div class="container">
+                <div class="col">
+                    <div class="col-lg-12 offset-lg py-5">
+                        <h1>Admin panel</h1>
+                        <div class="card mt-5">
+                            <div class="card-header">
+                                <div class="row">
+
+                                    <form action="/admin/adminPage" method="GET" class="d-inline">
+                                        <button type="submit" class="btn btn-light">All Student</button>
+                                    </form>
+
+
+                                    <form class="ml-2" action="/admin/new">
+                                        <button type="submit" class="btn btn-light">New Student</button>
+                                    </form>
+
+                                </div>
+
+
+                                <div class="card-header">
+                                    <h3>Add New Student</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form th:method="post" th:action="@{/admin/adminPage}" th:object="${student}">
+                                        <div class="form-group text-center">
+                                            <label for="name">Enter name</label>
+                                            <input type="text" th:field="*{name}" id="name" required/>
+                                        </div>
+                                        <div class="form-group text-center">
+                                            <label for="lastName">Enter Lastname</label>
+                                            <input type="text" th:field="*{lastName}" id="lastName" required/>
+                                        </div>
+                                        <div class="form-group text-center">
+                                            <label for="degree">Enter country</label>
+                                            <input type="text" th:field="*{degree}" id="degree" required/>
+                                        </div>
+                                        <div class="form-group text-center">
+                                            <label for="password">Enter Password</label>
+                                            <input type="password" th:field="*{password}" id="password" required/>
+                                        </div>
+                                        <div class="form-group text-center">
+                                            <label for="roles">Roles</label>
+                                            <select id="roles" name="roles" th:field="*{roles}" multiple>
+                                                <option th:each="role : ${roles}" th:value="${role.id}"
+                                                        th:text="${#strings.substringAfter(role.role, 'ROLE_')}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="text-center">
+                                            <input type="submit" class="btn btn-success" value="add"/>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
