@@ -1,128 +1,329 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta charset="UTF-8">
-    <title>Admin</title>
-    <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <!-- Include custom CSS -->
-    <link rel="stylesheet" th:href="@{/static/css/index.css}">
+    <title>Student Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card {
+            padding: 10px;
+        }
+
+        .full-height {
+            height: 100vh;
+        }
+
+        .half-height {
+            height: 50vh;
+            overflow-y: auto;
+        }
+
+        .admin-panel {
+            height: 100vh;
+        }
+    </style>
+
 </head>
-<body class="bg-light">
-<!-- Include navigation bar -->
-<div th:replace="fragments/navbar :: navbar"></div>
 
-<div class="d-flex align-items-start ">
-    <!-- Sidebar -->
-    <div class="container w-25 nav flex-column nav-pills py-5" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-        <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home">Admin</button>
-        <button class="usertab nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile">User</button>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="text-light">
+        <span th:text="${loggedInUser.name}"></span>
+        <span th:text="${loggedInUser.lastName}"></span>
     </div>
-
-    <!-- Content -->
-    <div class="tab-content px-4 w-100" id="v-pills-tabContent">
-        <!-- Admin tab -->
-        <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
-            <!-- Users -->
-            <h1 class="cont text-black text-capitalize py-5 pb-2 fs-1" style="font-size: large">Users</h1>
-            <!-- Tab navigation -->
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">All Users</button>
-                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">New User</button>
-                </div>
-            </nav>
-
-            <!-- Tab content -->
-            <div class="tab-content" id="nav-tabContent">
-                <!-- All Users -->
-                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                    <!-- Table for displaying users -->
-                    <div class="card">
-                        <div class="card-header pb-1">
-                            <h5>All Users</h5>
+    <form class="form-inline" th:action="@{/logout}" th:method="POST">
+        <button class="btn btn-outline-dark my-2 my-sm-0 text-light" type="submit">Logout</button>
+    </form>
+</nav>
+<div class="container-fluid 100vh">
+    <div class="row">
+        <div class="col-md-1 bg-info text-primary d-flex flex-column admin-panel">
+            <button type="button" class="btn btn-white btn-lg btn-block active" id="adminBtn">Admin</button>
+            <button type="button" class="btn btn-white btn-lg btn-block active" id="studentBtn">Student</button>
+        </div>
+        <div class="col-md-11">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card half-height">
+                        <h1>Admin panel</h1>
+                        <div class="card-header">
+                            <h2>All Students</h2>
                         </div>
                         <div class="card-body">
-                            <div class="m-auto">
-                                <table class="table-striped shadow table text-center bg-light m-auto text-center mt-2" id="usersTable">
-                                    <thead id="thead" class="mainColor">
-                                    <tr>
-                                        <th class="text-capitalize">ID</th>
-                                        <th class="text-capitalize">Name</th>
-                                        <th class="text-capitalize">Last Name</th>
-                                        <th class="text-capitalize">Degree</th>
-                                        <th class="text-capitalize">Roles</th>
-                                        <th class="text-capitalize text-center">Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="dataList"></tbody>
-                                </table>
-                            </div>
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Last Name</th>
+                                    <th>Degree</th>
+                                    <th>Roles</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                </tr>
+                                </thead>
+                                <tbody id="studentsTableBody">
+
+                                </tbody>
+
+                            </table>
+
                         </div>
                     </div>
                 </div>
-
-                <!-- New User -->
-                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                    <!-- Form for adding a new user -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="">Add new user</h5>
-                        </div>
-                        <div class="card-body">
-                            <!-- Form fields -->
-                            <div class="row container m-auto w-75 justify-content-center w-100">
-                                <!-- Include form fields for adding a new user -->
+                <div class="col-md-6">
+                    <div class="card half-height">
+                        <h3>Add New Student</h3>
+                        <form id="addStudentForm">
+                            <div class="form-group text-center">
+                                <label for="name">Enter name</label>
+                                <input type="text" id="name" required/>
                             </div>
-                        </div>
+                            <div class="form-group text-center">
+                                <label for="lastName">Enter Lastname</label>
+                                <input type="text" id="lastName" required/>
+                            </div>
+                            <div class="form-group text-center">
+                                <label for="degree">Enter country</label>
+                                <input type="text" id="degree" required/>
+                            </div>
+                            <div class="form-group text-center">
+                                <label for="password">Enter Password</label>
+                                <input type="password" id="password" required/>
+                            </div>
+                            <div class="form-group text-center">
+                                <label for="roles">Roles</label>
+                                <select id="roles" multiple>
+                                    <!-- Options for roles will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <button type="button" id="createBtn" class="btn btn-success">Add</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- User tab -->
-        <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-            <!-- User Information Page -->
-            <h2 class="cont text-black text-capitalize py-5 pb-2 fs-1">User Information Page</h2>
-            <!-- Table for displaying current user's information -->
-            <div class="card">
-                <div class="card-header">About User</div>
-                <div class="card-body">
-                    <div class="m-auto">
-                        <table class="table-striped shadow table text-center bg-light m-auto text-center ">
-                            <thead class="mainColor">
-                            <tr>
-                                <th class="text-capitalize">ID</th>
-                                <th class="text-capitalize">Name</th>
-                                <th class="text-capitalize">Last Name</th>
-                                <th class="text-capitalize">Degree</th>
-                                <th class="text-capitalize">Roles</th>
-                            </tr>
-                            </thead>
-                            <tbody id="currentUserData"></tbody>
-                        </table>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card half-height">
+                        <h3>Edit Student</h3>
+                        <form id="editStudentForm">
+                            <input type="hidden" id="editId"/>
+                            <div class="form-group text-center">
+                                <label for="editName">Name</label>
+                                <input type="text" id="editName" required/>
+                            </div>
+                            <div class="form-group text-center">
+                                <label for="editLastName">Last Name</label>
+                                <input type="text" id="editLastName" required/>
+                            </div>
+                            <div class="form-group text-center">
+                                <label for="editDegree">Degree</label>
+                                <input type="text" id="editDegree" required/>
+                            </div>
+                            <div class="form-group text-center">
+                                <label for="editPassword">Password</label>
+                                <input type="password" id="editPassword" required/>
+                            </div>
+                            <div class="form-group text-center">
+                                <label for="editRoles">Roles</label>
+                                <select id="editRoles" multiple>
+                                    <!-- Options for roles will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <button type="button" id="updateBtn" class="btn btn-primary">Update</button>
+                                <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
+<!--                <div class="col-md-6">-->
+<!--                    <div class="card half-height">-->
+<!--                        <h3>Delete Student</h3>-->
+<!--                        <form id="deleteStudentForm">-->
+<!--                            <input type="hidden" id="deleteId"/>-->
+<!--                            <div class="form-group text-center">-->
+<!--                                <label for="deleteName">Name</label>-->
+<!--                                <input type="text" id="deleteName" disabled/>-->
+<!--                            </div>-->
+<!--                            <div class="form-group text-center">-->
+<!--                                <label for="deleteLastName">Last Name</label>-->
+<!--                                <input type="text" id="deleteLastName" disabled/>-->
+<!--                            </div>-->
+<!--                            <div class="form-group text-center">-->
+<!--                                <label for="deleteDegree">Degree</label>-->
+<!--                                <input type="text" id="deleteDegree" disabled/>-->
+<!--                            </div>-->
+<!--                            <div class="form-group text-center">-->
+<!--                                <label for="deletePassword">Password</label>-->
+<!--                                <input type="password" id="deletePassword" disabled/>-->
+<!--                            </div>-->
+<!--                            <div class="form-group text-center">-->
+<!--                                <label for="deleteRoles">Roles</label>-->
+<!--                                <select id="deleteRoles" multiple disabled>-->
+<!--                                    &lt;!&ndash; Options for roles will be populated dynamically &ndash;&gt;-->
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                            <div class="text-center">-->
+<!--                                <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Delete</button>-->
+<!--                                <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>-->
+<!--                            </div>-->
+<!--                        </form>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
         </div>
     </div>
 </div>
 
-<!-- Include Bootstrap JS -->
-<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.js}"></script>
 
-<!-- Include jQuery -->
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Include custom JavaScript -->
-<script th:src="@{/js/main.js}" src="../static/js/main.js"></script>
-
 <script>
-    // Call functions to populate data
-    listAllUsers();
-    getCurrentUser();
+
+    // Function to fetch and display all students
+function fetchStudents() {
+    $.ajax({
+        url: "/admin/studentsData",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            var tableBody = $("#studentsTableBody");
+            tableBody.empty();
+            data.forEach(function(student) {
+                var row = "<tr>" +
+                    "<td>" + student.id + "</td>" +
+                    "<td>" + student.name + "</td>" +
+                    "<td>" + student.lastName + "</td>" +
+                    "<td>" + student.degree + "</td>" +
+                    "<td>" + student.roles.map(role => role.role).join(", ") + "</td>" +
+                    "<td><button class='btn btn-primary btn-sm editBtn' data-id='" + student.id + "'>Edit</button></td>" +
+                    "<td><button class='btn btn-danger btn-sm deleteBtn' data-id='" + student.id + "'>Delete</button></td>" +
+                    "</tr>";
+                tableBody.append(row);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Error fetching data: " + error);
+        }
+    });
+}
+
+
+    // Function to handle create operation
+$("#createBtn").click(function() {
+    var name = $("#name").val();
+    var lastName = $("#lastName").val();
+    var degree = $("#degree").val();
+    var password = $("#password").val();
+    var roles = $("#roles").val();
+    $.ajax({
+        url: "/admin/student",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            name: name,
+            lastName: lastName,
+            degree: degree,
+            password: password,
+            roles: roles
+        }),
+        success: function(response) {
+            alert("Do you want to add Student?: " + response.name);
+            fetchStudents(); // Refresh the table after adding a new student
+        },
+        error: function(xhr, status, error) {
+            console.error("Error creating student: " + error);
+        }
+    });
+});
+
+// Function to handle edit operation
+$(document).on("click", ".editBtn", function() {
+    var id = $(this).data("id");
+    $.ajax({
+        url: "/admin/edit?id=" + id,
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            $("#editId").val(data.id);
+            $("#editName").val(data.name);
+            $("#editLastName").val(data.lastName);
+            $("#editDegree").val(data.degree);
+            $("#editPassword").val(data.password);
+            // Populate roles dropdown
+            $("#editRoles").empty();
+            data.roles.forEach(function(role) {
+                $("#editRoles").append('<option value="' + role.id + '">' + role.role + '</option>');
+            });
+            $("#editSection").show();
+        },
+        error: function(xhr, status, error) {
+            console.error("Error fetching student data for editing: " + error);
+        }
+    });
+});
+
+
+// Function to handle update operation
+$("#updateBtn").click(function() {
+    var id = $("#editId").val();
+    var name = $("#editName").val();
+    var lastName = $("#editLastName").val();
+    var degree = $("#editDegree").val();
+    var password = $("#editPassword").val();
+    var roles = $("#editRoles").val();
+    $.ajax({
+        url: "/admin/student/update?id=" + id,
+        type: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify({
+            id: id,
+            name: name,
+            lastName: lastName,
+            degree: degree,
+            password: password,
+            roles: roles
+        }),
+        success: function(response) {
+            alert("Do you wat to update the Student?: " + response.name);
+            $("#editSection").hide();
+            fetchStudents(); // Refresh the table after updating student data
+        },
+        error: function(xhr, status, error) {
+            console.error("Error updating student: " + error);
+        }
+    });
+});
+
+$(document).on("click", ".deleteBtn", function() {
+    var id = $(this).data("id");
+    if (confirm("Do you want to delete this student?")) {
+        $.ajax({
+            url: "/admin/student?id=" + id,
+            type: "DELETE",
+            success: function(response) {
+
+                fetchStudents(); // Refresh the table after deleting a student
+            },
+            error: function(xhr, status, error) {
+                console.error("Error deleting student: " + error);
+            }
+        });
+    }
+});
+
+
+
+// Initialize by fetching students on page load
+fetchStudents();
+
 </script>
 
 </body>
 </html>
+
+

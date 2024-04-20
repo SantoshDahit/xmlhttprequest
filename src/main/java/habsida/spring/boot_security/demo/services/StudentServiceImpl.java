@@ -17,9 +17,10 @@ public class StudentServiceImpl implements StudentService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public void add(Student student) {
+    public Student add(Student student) {
         student.setPassword(passwordEncoder.encode(student.getPassword()));
         studentRepository.save(student);
+        return student;
     }
 
     @Override
@@ -33,9 +34,10 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void update(Student student) {
+    public Student update(Long id, Student student) {
         student.setPassword(passwordEncoder.encode(student.getPassword()));
         studentRepository.save(student);
+        return student;
     }
 
     @Override
