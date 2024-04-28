@@ -10,11 +10,11 @@ public interface StudentService {
     Student add(Student student);
     List<Student> listStudents();
 
-    void remove(long id);
+    void remove(Long id);
 
     Student update(Long id, Student student);
 
-    Optional<Student> studentById(long id);
+    Optional<Student> studentById(Long id);
 
     Optional<Student> findByName(String userName);
 }

@@ -13,7 +13,9 @@ import org.springframework.web.servlet.ModelAndView;
 import habsida.spring.boot_security.demo.models.Student;
 import habsida.spring.boot_security.demo.services.StudentService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -30,8 +32,10 @@ public class StudentController {
 
     @GetMapping("/admin/roles")
     @ResponseBody
-    public List<Role> getRoles() {
-        return roleService.listRoles();
+
+    public ResponseEntity<List<Role>> getAllRoles() {
+        List<Role> roles = roleService.listRoles();
+        return new ResponseEntity<>(roles, HttpStatus.OK);
     }
 
     @GetMapping("/admin/adminPage")
@@ -57,24 +61,46 @@ public class StudentController {
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
-    @GetMapping("/admin/edit")
-    public Object editStudent(@RequestParam long id, @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
-        Optional<Student> studentOptional = studentService.studentById(id);
-        if (studentOptional.isPresent()) {
+//    @GetMapping("/admin/edit")
+//    public Object editStudent(@RequestParam long id, @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
+//        Optional<Student> studentOptional = studentService.studentById(id);
+//        if (studentOptional.isPresent()) {
+//            ModelAndView mav = new ModelAndView("/edit");
+//            mav.addObject("student", studentOptional.get());
+//            mav.addObject("roles", roleService.listRoles());
+//
+//            // Check if the request is AJAX or not
+//            if (requestedWith != null && requestedWith.equals("XMLHttpRequest")) {
+//                return ResponseEntity.ok(studentOptional.get());
+//            } else {
+//                return mav;
+//            }
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
+@GetMapping("/admin/edit")
+public Object editStudent(@RequestParam long id, @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
+    Optional<Student> studentOptional = studentService.studentById(id);
+    if (studentOptional.isPresent()) {
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("student", studentOptional.get());
+        responseData.put("roles", roleService.listRoles());
+
+        // Check if the request is AJAX or not
+        if (requestedWith != null && requestedWith.equals("XMLHttpRequest")) {
+            return ResponseEntity.ok(responseData);
+        } else {
             ModelAndView mav = new ModelAndView("/edit");
             mav.addObject("student", studentOptional.get());
             mav.addObject("roles", roleService.listRoles());
-
-            // Check if the request is AJAX or not
-            if (requestedWith != null && requestedWith.equals("XMLHttpRequest")) {
-                return ResponseEntity.ok(studentOptional.get());
-            } else {
-                return mav;
-            }
-        } else {
-            return ResponseEntity.notFound().build();
+            return mav;
         }
+    } else {
+        return ResponseEntity.notFound().build();
     }
+}
+
 
 
 
@@ -83,6 +109,7 @@ public class StudentController {
         Student updatedStudent = studentService.update(id, student);
         return new ResponseEntity<>(updatedStudent, HttpStatus.OK);
     }
+
 
     @PostMapping("/admin/student")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {

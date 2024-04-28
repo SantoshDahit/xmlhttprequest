@@ -38,10 +38,7 @@
 </nav>
 <div class="container-fluid 100vh">
     <div class="row">
-        <div class="col-md-1 bg-info text-primary d-flex flex-column admin-panel">
-            <button type="button" class="btn btn-white btn-lg btn-block active" id="adminBtn">Admin</button>
-            <button type="button" class="btn btn-white btn-lg btn-block active" id="studentBtn">Student</button>
-        </div>
+
         <div class="col-md-11">
             <div class="row">
                 <div class="col-md-6">
@@ -85,7 +82,7 @@
                                 <input type="text" id="lastName" required/>
                             </div>
                             <div class="form-group text-center">
-                                <label for="degree">Enter country</label>
+                                <label for="degree">Enter degree</label>
                                 <input type="text" id="degree" required/>
                             </div>
                             <div class="form-group text-center">
@@ -95,11 +92,13 @@
                             <div class="form-group text-center">
                                 <label for="roles">Roles</label>
                                 <select id="roles" multiple>
-                                    <!-- Options for roles will be populated dynamically -->
+
+
                                 </select>
                             </div>
                             <div class="text-center">
                                 <button type="button" id="createBtn" class="btn btn-success">Add</button>
+                                <button type="button" id="cancelCreateBtn" class="btn btn-secondary">Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -130,7 +129,7 @@
                             <div class="form-group text-center">
                                 <label for="editRoles">Roles</label>
                                 <select id="editRoles" multiple>
-                                    <!-- Options for roles will be populated dynamically -->
+
                                 </select>
                             </div>
                             <div class="text-center">
@@ -184,7 +183,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 
-    // Function to fetch and display all students
+
 function fetchStudents() {
     $.ajax({
         url: "/admin/studentsData",
@@ -213,7 +212,52 @@ function fetchStudents() {
 }
 
 
-    // Function to handle create operation
+
+<!--function fetchRolesAndPopulateSelect() {-->
+<!--    $.ajax({-->
+<!--        url: "/admin/roles",-->
+<!--        type: "GET",-->
+<!--        dataType: "json",-->
+<!--        success: function(data) {-->
+<!--            var rolesSelect = $("#roles");-->
+<!--            rolesSelect.empty(); // Clear existing options-->
+<!--            data.forEach(function(role) {-->
+<!--                rolesSelect.append('<option value="' + role.role + '">' + role.role + '</option>');-->
+<!--            });-->
+<!--        },-->
+<!--        error: function(xhr, status, error) {-->
+<!--            console.error("Error fetching roles: " + error);-->
+<!--        }-->
+<!--    });-->
+<!--}-->
+
+<!--$(document).ready(function() {-->
+<!--    fetchRolesAndPopulateSelect();-->
+<!--});-->
+
+
+function populatePredefinedRoles() {
+    var predefinedRoles = ["ROLE_ADMIN", "ROLE_STUDENT"];
+    var rolesSelect = $("#roles");
+    rolesSelect.empty();
+    predefinedRoles.forEach(function(role) {
+        rolesSelect.append('<option value="' + role + '">' + role + '</option>');
+    });
+}
+
+
+function fetchRolesAndPopulateSelect() {
+
+    populatePredefinedRoles();
+}
+
+$(document).ready(function() {
+    fetchRolesAndPopulateSelect();
+});
+
+
+
+
 $("#createBtn").click(function() {
     var name = $("#name").val();
     var lastName = $("#lastName").val();
@@ -233,7 +277,12 @@ $("#createBtn").click(function() {
         }),
         success: function(response) {
             alert("Do you want to add Student?: " + response.name);
-            fetchStudents(); // Refresh the table after adding a new student
+            fetchStudents();
+            $("#name").val("");
+            $("#lastName").val("");
+            $("#degree").val("");
+            $("#password").val("");
+            $("#roles").val("");
         },
         error: function(xhr, status, error) {
             console.error("Error creating student: " + error);
@@ -241,7 +290,16 @@ $("#createBtn").click(function() {
     });
 });
 
-// Function to handle edit operation
+
+$(document).on("click", "#cancelCreateBtn", function() {
+
+    $("#name").val("");
+    $("#lastName").val("");
+    $("#degree").val("");
+    $("#password").val("");
+    $("#roles").val("");
+});
+
 $(document).on("click", ".editBtn", function() {
     var id = $(this).data("id");
     $.ajax({
@@ -249,16 +307,18 @@ $(document).on("click", ".editBtn", function() {
         type: "GET",
         dataType: "json",
         success: function(data) {
-            $("#editId").val(data.id);
-            $("#editName").val(data.name);
-            $("#editLastName").val(data.lastName);
-            $("#editDegree").val(data.degree);
-            $("#editPassword").val(data.password);
-            // Populate roles dropdown
+            $("#editId").val(data.student.id);
+            $("#editName").val(data.student.name);
+            $("#editLastName").val(data.student.lastName);
+            $("#editDegree").val(data.student.degree);
+            $("#editPassword").val(data.student.password);
+
+            // Populate roles dropdown with predefined roles
             $("#editRoles").empty();
-            data.roles.forEach(function(role) {
-                $("#editRoles").append('<option value="' + role.id + '">' + role.role + '</option>');
-            });
+            $("#editRoles").append('<option value="ROLE_ADMIN">ROLE_ADMIN</option>');
+            $("#editRoles").append('<option value="ROLE_STUDENT">ROLE_STUDENT</option>');
+
+
             $("#editSection").show();
         },
         error: function(xhr, status, error) {
@@ -266,9 +326,17 @@ $(document).on("click", ".editBtn", function() {
         }
     });
 });
+$(document).on("click", "#cancelEditBtn", function() {
+
+    $("#editName").val("");
+    $("#editLastName").val("");
+    $("#editDegree").val("");
+    $("#editPassword").val("");
+    $("#editRoles").val("");
+});
 
 
-// Function to handle update operation
+//update section
 $("#updateBtn").click(function() {
     var id = $("#editId").val();
     var name = $("#editName").val();
@@ -289,15 +357,22 @@ $("#updateBtn").click(function() {
             roles: roles
         }),
         success: function(response) {
-            alert("Do you wat to update the Student?: " + response.name);
+            alert("Student updated successfully: " + response.name);
             $("#editSection").hide();
-            fetchStudents(); // Refresh the table after updating student data
+            fetchStudents();
+
+            $("#editName").val("");
+            $("#editLastName").val("");
+            $("#editDegree").val("");
+            $("#editPassword").val("");
+            $("#editRoles").val("");
         },
         error: function(xhr, status, error) {
             console.error("Error updating student: " + error);
         }
     });
 });
+
 
 $(document).on("click", ".deleteBtn", function() {
     var id = $(this).data("id");
@@ -307,7 +382,7 @@ $(document).on("click", ".deleteBtn", function() {
             type: "DELETE",
             success: function(response) {
 
-                fetchStudents(); // Refresh the table after deleting a student
+                fetchStudents();
             },
             error: function(xhr, status, error) {
                 console.error("Error deleting student: " + error);
@@ -315,7 +390,6 @@ $(document).on("click", ".deleteBtn", function() {
         });
     }
 });
-
 
 
 // Initialize by fetching students on page load
