@@ -1,5 +1,7 @@
 package habsida.spring.boot_security.demo.models;
 
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,14 +12,19 @@ import javax.persistence.*;
 @Table(name = "roles")
 @Data
 @NoArgsConstructor
+
 public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Byte id;
+    private Long id;
 
     @Column
     private String role;
+
+    public Role (String role) {
+        this.role = role;
+    }
 
 
 
